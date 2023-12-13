@@ -28,8 +28,8 @@ tar -cvf ${CAL_SBID_TAR} ${DATA_DIR}/${CAL_SBID}/
 rclone mkdir askap:RACSlow3-backup
 
 ## Copy the data to the bucket
-rclone copy -P ${SBID}.tar askap:RACSlow3-backup/
-rclone copy -P ${CAL_SBID}.tar askap:RACSlow3-backup/
+rclone copy -P ${SBID_TAR} askap:RACSlow3-backup/
+rclone copy -P ${CAL_SBID_TAR} askap:RACSlow3-backup/
 
 ## TODO: Do something on success/failure
 # e.g. Emit a message via clink-cli
