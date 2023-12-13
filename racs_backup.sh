@@ -14,12 +14,16 @@ DATA_DIR=$3
 module load rclone
 # TODO load clink-cli??
 
-
-## Ensure bucket exists
+## Rclone config
 # Assuming the remote is called 'askap' 
 #   - need to ensure this is in the rclone config
 # Here we're also locking in the bucket name to be 'RACSlow3-backup'
-rclone mkdir askap:RACSlow3-backup
+BUCKET_NAME="RACSlow3-backup"
+REMOTE_NAME="askap"
+
+
+## Ensure bucket exists
+rclone mkdir ${REMOTE_NAME}:${BUCKET_NAME}
 
 ## Tar up the data
 ## Copy the data to the bucket
@@ -35,7 +39,7 @@ for sb in ${SBID} ${CAL_SBID}; do
         copy \
         -P \
         ${sb}.tar.gz \
-        askap:RACSlow3-backup/
+        ${REMOTE_NAME}:${BUCKET_NAME}/
 done
 
 ## TODO: Do something on success/failure
