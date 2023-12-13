@@ -15,23 +15,28 @@ module load rclone
 # TODO load clink-cli??
 
 
-## Tar up the data
-SBID_TAR=${DATA_DIR}/${SBID}.tar
-CAL_SBID_TAR=${DATA_DIR}/${CAL_SBID}.tar
-tar -cvf ${SBID_TAR} ${DATA_DIR}/${SBID}/
-tar -cvf ${CAL_SBID_TAR} ${DATA_DIR}/${CAL_SBID}/
-
 ## Ensure bucket exists
 # Assuming the remote is called 'askap' 
 #   - need to ensure this is in the rclone config
 # Here we're also locking in the bucket name to be 'RACSlow3-backup'
 rclone mkdir askap:RACSlow3-backup
 
+## Tar up the data
 ## Copy the data to the bucket
 # TODO: Decide on 'copy' or 'move'
 # The latter will delete the data from disk on success
-rclone copy -P ${SBID_TAR} askap:RACSlow3-backup/
-rclone copy -P ${CAL_SBID_TAR} askap:RACSlow3-backup/
+## Use pigz for compression
+for sb in ${SBID} ${CAL_SBID}; do
+    tar \
+        --use-compress-program="pigz --best --recursive" \
+        -cf ${sb}.tar.gz \
+        ${DATA_DIR}/${sb} && \
+    rclone \
+        copy \
+        -P \
+        ${sb}.tar.gz \
+        askap:RACSlow3-backup/
+done
 
 ## TODO: Do something on success/failure
 # e.g. Emit a message via clink-cli
