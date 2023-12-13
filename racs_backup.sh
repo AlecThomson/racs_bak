@@ -28,6 +28,8 @@ tar -cvf ${CAL_SBID_TAR} ${DATA_DIR}/${CAL_SBID}/
 rclone mkdir askap:RACSlow3-backup
 
 ## Copy the data to the bucket
+# TODO: Decide on 'copy' or 'move'
+# The latter will delete the data from disk on success
 rclone copy -P ${SBID_TAR} askap:RACSlow3-backup/
 rclone copy -P ${CAL_SBID_TAR} askap:RACSlow3-backup/
 
