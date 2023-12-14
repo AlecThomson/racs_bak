@@ -6,8 +6,8 @@
 ### Thrid argument is the directory containing the data
 
 #TODO: Get these data somehow...
+# Can be science or calibrator SBID
 SBID=$1
-CAL_SBID=$2
 DATA_DIR=$3
 
 ## Load up appropriate modules
@@ -30,17 +30,15 @@ rclone mkdir ${REMOTE_NAME}:${BUCKET_NAME}
 # TODO: Decide on 'copy' or 'move'
 # The latter will delete the data from disk on success
 ## Use pigz for compression
-for sb in ${SBID} ${CAL_SBID}; do
-    tar \
-        --use-compress-program="pigz --best --recursive" \
-        -cf ${sb}.tar.gz \
-        ${DATA_DIR}/${sb} && \
-    rclone \
-        copy \
-        -P \
-        ${sb}.tar.gz \
-        ${REMOTE_NAME}:${BUCKET_NAME}/
-done
+tar \
+    --use-compress-program="pigz --best --recursive" \
+    -cf ${SBID}.tar.gz \
+    ${DATA_DIR}/${SBID} && \
+rclone \
+    copy \
+    -P \
+    ${SBID}.tar.gz \
+    ${REMOTE_NAME}:${BUCKET_NAME}/
 
 ## TODO: Do something on success/failure
 # e.g. Emit a message via clink-cli
