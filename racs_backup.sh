@@ -80,7 +80,7 @@ rclone mkdir ${REMOTE_NAME}:${BUCKET_NAME}
 tar \
     --use-compress-program="pigz --best --recursive" \
     -cf ${SBID}.tar.gz \
-    ${DATA_DIR}/${SBID} && \
+    ${DATA_DIR} && \
 rclone \
     copy \
     -P \
