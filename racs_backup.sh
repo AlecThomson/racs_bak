@@ -60,7 +60,6 @@ DATA_DIR=${3:-"/askapbuffer/scott/askap-scheduling-blocks/${SBID}"}
 
 ## Load up appropriate modules
 module load rclone
-# TODO load clink-cli??
 
 ## Rclone config
 # Assuming the remote is called 'askap' 
@@ -88,6 +87,16 @@ rclone \
     ${SBID}.tar.gz \
     ${REMOTE_NAME}:${BUCKET_NAME}/
 
-## TODO: Do something on success/failure
-# e.g. Emit a message via clink-cli
-# Purge data from disk, etc
+
+# Emit racs.backup_completed CLINK event, with scheduling block payload
+clink emit-event --input - <<EOF
+{
+    "id": "$(uuidgen --random)",
+    "source": "clink.cli",
+    "specversion": "1.0",
+    "subject": "urn:askap:scheduling-block:::scheduling-block/${SBID}",
+    "time": "$(date --utc --iso-8601=seconds)",
+    "type": "au.csiro.atnf.askap.racs.backup_completed",
+    "data": $(askap-tosconnector scheduling-block --format=json "${SBID}")
+}
+EOF
