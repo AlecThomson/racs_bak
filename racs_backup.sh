@@ -1,14 +1,62 @@
 #!/usr/bin/env bash
+#SBATCH --account=askaprt
+#SBATCH --cluster=setonix
+#SBATCH --cpus-per-task=1
+#SBATCH --export=NONE
+#SBATCH --job-name=RACS-BACKUP-AUTO
+#SBATCH --ntasks=1
+#SBATCH --output=slurm-RACS-BACKUP-AUTO_JID-%j.out
+#SBATCH --partition=copy
+#SBATCH --time=00:30:00
+set -e
+
+
+echo "Explicitly unsetting all SLURM_* environment variables..."
+# This is because even with --export=NONE above, SLURM_* environment variables
+# are still persisted by sbatch.
+for slurmEnvVar in $(env | grep SLURM_ | awk -F'=' '{print $1}'); do
+    echo "Unsetting ${slurmEnvVar}..."
+    unset "${slurmEnvVar}"
+done
+
+
+ARGUMENT_LIST=(
+  "sbid"
+)
+
+
+# Read arguments
+opts=$(getopt \
+  --longoptions "$(printf "%s:," "${ARGUMENT_LIST[@]}")" \
+  --name "$(basename "$0")" \
+  --options "" \
+  -- "$@"
+)
+
+eval set --$opts
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --sbid)
+      SBID=$2
+      shift 2
+      ;;
+
+    *)
+      break
+      ;;
+  esac
+done
+
 
 ## Parse arguments
-### First argument is SBID
 ### Second argument is CAL_SBID
-### Thrid argument is the directory containing the data
+### Third argument is the directory containing the data
 
 #TODO: Get these data somehow...
 # Can be science or calibrator SBID
-SBID=$1
-DATA_DIR=$3
+DATA_DIR=${3:-"/askapbuffer/scott/askap-scheduling-blocks/${SBID}"}
+
 
 ## Load up appropriate modules
 module load rclone
